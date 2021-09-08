@@ -1,0 +1,9 @@
+{
+    "compilerOptions": {
+        "target": "ES5",
+        "strict": true,
+        "baseUrl": "./src",
+        "module": "es2015",
+        "moduleResolution": "node"
+    }
+}
