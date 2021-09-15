@@ -1,9 +1,10 @@
 {
     "compilerOptions": {
-        "target": "ES5",
+        "target": "esnext",
+        "module": "esnext",
         "strict": true,
         "baseUrl": "./src",
-        "module": "es2015",
+        "jsx": "preserve",
         "moduleResolution": "node"
     }
 }
