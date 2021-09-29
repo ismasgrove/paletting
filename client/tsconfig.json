@@ -5,6 +5,5 @@
         "strict": true,
         "baseUrl": "./src",
         "jsx": "preserve",
-        "moduleResolution": "node"
-    }
+        "moduleResolution": "node"    }
 }

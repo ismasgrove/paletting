@@ -1,4 +1,4 @@
-<script setup lang='ts'>
+<script setup lang="ts">
 import iro from '@jaames/iro'
 import { onMounted, ref } from 'vue'
 
@@ -7,16 +7,13 @@ let colorPicker = ref(null)
 onMounted(() => {
     colorPicker = new (iro.ColorPicker as any)('#color-picker', {
         width: 300,
-        color: '#fff'
+        color: '#fff',
     })
 })
-
 </script>
 
 <template>
-    <!-- <div class='selector-container'> -->
-        <div id='color-picker' ref='colorPicker' />
-    <!-- </div> -->
+    <div id="color-picker" ref="colorPicker" />
 </template>
 
 <style scoped>
