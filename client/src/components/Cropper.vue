@@ -1,27 +1,115 @@
 <script setup lang='ts'>
-import { Cropper } from 'vue-advanced-cropper'
+import { ref, Ref, onMounted, onUpdated, reactive } from 'vue'
 import 'vue-advanced-cropper/dist/style.css'
-import demopurp from '../assets/demopurp.jpg'
+import useStore from '../store/useStore'
+
+const store = useStore()
+let canvas = ref()
+let context = ref()
+let image = reactive(new Image())
+let drawing = false
+let startX: number, startY: number
+let endX: number, endY: number
+let mouseX: number, mouseY: number
+let offsetX: number, offsetY: number
+let scaleX: number, scaleY: number
+
+onMounted(() => {
+    image.onload = () => {
+        canvas.value.width = image.naturalWidth
+        canvas.value.height = image.naturalHeight
+        context.value = canvas.value.getContext("2d")
+        context.value.drawImage(image, 0, 0)
+    }
+    image.src = store.getSrc
+})
+
+onUpdated(() => {
+    image.onload = () => {
+        context.value.drawImage(image, 0, 0)
+    }
+    image.src = store.getSrc
+})
+
+const transform = (x: number, y: number): [number, number] => {
+    const canvasBoundingRect = canvas.value.getBoundingClientRect()
+    offsetX = canvasBoundingRect.left
+    offsetY = canvasBoundingRect.top
+    scaleX = canvas.value.width / canvasBoundingRect.width
+    scaleY = canvas.value.height / canvasBoundingRect.height
+    return [
+        Math.round((x - offsetX) * scaleX),
+        Math.round((y - offsetY) * scaleY)
+    ]
+}
+
+const endDrawing = (e: MouseEvent) => {
+    drawing = false
+    const [x, y] = transform(e.clientX, e.clientY)
+    endX = x
+    endY = y
+    store.setSubImage(startX, startY, endX, endY)
+    console.log(store.getSubImg)
+}
+
+const handleMouseDown = (e: MouseEvent) => {
+    const [x, y] = transform(e.clientX, e.clientY)
+    startX = x
+    startY = y
+    drawing = true
+}
+
+const handleMouseUp = (e: MouseEvent) => {
+    endDrawing(e)
+}
+
+const handleMouseMove = (e: MouseEvent) => {
+    if (!drawing) return;
+
+    const [x, y] = transform(e.clientX, e.clientY)
+    mouseX = x
+    mouseY = y
+
+    context.value.clearRect(0, 0, canvas.value.width, canvas.value.height)
+    context.value.drawImage(image, 0, 0)
+
+    const width = Math.round(mouseX - startX)
+    const height = Math.round(mouseY - startY)
+
+    context.value.strokeRect(startX, startY, width, height)
+}
+const handleMouseOut = (e: MouseEvent) => {
+    if (!drawing) return
+    endDrawing(e)
+}
 
 const change = (props: any) => {
+    /*
+        TODO: send coordinates to WASM
+    */
     // console.log(props.coordinates, props.canvas)
 }
 
 </script>
 
 <template>
-    <cropper
-        class="cropper"
-        :src="demopurp"
-        :auto-zoom="true"
-        :stencil-size="{
-            width: 280,
-            height: 280
-        }"
-        image-restriction="stencil"
-        @change="change"
+    <canvas
+        @mousedown.prevent="handleMouseDown"
+        @mouseup.prevent="handleMouseUp"
+        @mousemove.prevent="handleMouseMove"
+        @mouseout.prevent="handleMouseOut"
+        ref="canvas"
+        class="canvas"
+        :src="store.getSrc"
     />
 </template>
 
 <style scoped lang='scss'>
+.canvas {
+    justify-self: center;
+    height: 80%;
+    // width: 60%;
+    // border: 1px solid black;
+    object-fit: contain;
+}
 </style>

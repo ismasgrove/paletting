@@ -1,39 +1,23 @@
 <script setup lang='ts'>
 import Sidebar from './components/Sidebar.vue'
 import Editor from './components/Editor.vue'
-import ColorPicker from './components/ColorPicker.vue'
+import MainContainer from './components/MainContainer.vue'
 
 </script>
 
 <template>
-  <Sidebar id="sidebar" />
-  <Editor id="editor" />
+  <MainContainer>
+    <Editor />
+  </MainContainer>
 </template>
 
 <style lang='scss'>
-$container-height: 60%;
-$container-width: 60%;
-
 body,
 html {
+  box-sizing: border-box;
   margin: 0;
   padding: 0;
-}
-#editor {
-  grid-column-start: 3;
-  grid-column-end: span 2;
-  grid-row-start: 2;
-  grid-row-end: 3;
-  height: 100%;
-  width: 100%;
-  // transform: translateX(-0.75%);
-}
-#sidebar {
-  grid-column: 2;
-  grid-row-start: 2;
-  grid-row-end: 3;
-  flex-shrink: 0;
-  // transform: translateX(0.75%);
+  font-size: 1rem;
 }
 #app {
   /* font-family: Avenir, Helvetica, Arial, sans-serif; */
@@ -41,11 +25,11 @@ html {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
-  background-color: rgb(200, 207, 92);
-  display: grid;
-  flex-direction: column;
-  grid-template-columns: 3fr 3fr 3fr 3fr 3fr;
-  grid-template-rows: 2fr 10fr 2fr;
+  background-color: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
   height: 100vh;
+  overflow: hidden;
 }
 </style>

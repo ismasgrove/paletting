@@ -52,7 +52,7 @@ h1 {
     margin-bottom: 1rem;
     margin-left: $sidebar-margins;
     margin-right: $sidebar-margins;
-    font-size: 40px;
+    font-size: 60px;
     font-weight: 400;
     i {
         font-weight: 600;
