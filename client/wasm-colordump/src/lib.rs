@@ -4,7 +4,10 @@ mod utils;
 use std::{cmp::Ordering, convert::TryInto, fs};
 
 #[allow(unused_imports)]
-use image::{DynamicImage, EncodableLayout, GenericImageView, ImageBuffer, ImageOutputFormat, Rgb};
+use image::{
+    DynamicImage, EncodableLayout, GenericImageView, ImageBuffer, ImageFormat, ImageOutputFormat,
+    Rgb,
+};
 use palette::{ColorDifference, FromColor, GetHue, Hsv, IntoColor, Lab, Srgb};
 
 use wasm_bindgen::prelude::*;
@@ -50,6 +53,7 @@ pub enum SortMode {
     TODO: Support different formats by adding a new constructor parameter + some macros
 */
 
+#[allow(dead_code)]
 #[wasm_bindgen]
 pub struct ImageView {
     state: Vec<u8>,
@@ -58,6 +62,7 @@ pub struct ImageView {
     sorted_img: Option<DynamicImage>,
     pixel_img: Option<DynamicImage>,
     pixel_palette: Vec<[u8; 3]>,
+    format: ImageFormat,
 }
 
 #[wasm_bindgen]
@@ -68,6 +73,11 @@ impl ImageView {
         console_error_panic_hook::set_once();
 
         let img = image::load_from_memory(buf).expect("Buffer wasn't loaded correctly");
+        let format = image::guess_format(buf).expect("Unsupported format");
+        if img.width() > 800 || img.height() > 800 {
+            img.resize(800, 800, image::imageops::FilterType::Nearest);
+        }
+
         ImageView {
             state: buf.to_vec(),
             sort_mode: SortMode::NONE,
@@ -75,6 +85,7 @@ impl ImageView {
             sorted_img: None,
             pixel_img: None,
             pixel_palette: vec![],
+            format,
         }
     }
 
@@ -165,8 +176,12 @@ impl ImageView {
 
         let mut buf = Vec::<u8>::new();
 
+        // if self.format == ImageFormat::Png {
+        // img.write_to(&mut buf, ImageOutputFormat::Png).unwrap();
+        // } else {
         img.write_to(&mut buf, ImageOutputFormat::Jpeg(200))
             .unwrap();
+        // }
 
         self.sorted_img = Some(img);
         self.state = buf;
