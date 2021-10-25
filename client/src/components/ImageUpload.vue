@@ -31,8 +31,8 @@ const initializeStore = (imageFile: Ref<any>) => {
     imageFile.value.arrayBuffer().then(
         async (buf: any) => {
             await store.initialize(new Uint8Array(buf))
+            await store.render()
             store.setLoaded(true)
-            store.render()
         })
 }
 

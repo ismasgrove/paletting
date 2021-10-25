@@ -5,5 +5,7 @@
         "strict": true,
         "baseUrl": "./src",
         "jsx": "preserve",
-        "moduleResolution": "node"    }
+        "lib": ["ESNext", "WebWorker"],
+        "moduleResolution": "node"
+        }
 }

@@ -1,5 +1,11 @@
 mod utils;
 
+// #[cfg(feature = "parallel")]
+use rayon::prelude::*;
+
+// #[cfg(feature = "parallel")]
+pub use wasm_bindgen_rayon::init_thread_pool;
+
 #[allow(unused_imports)]
 use std::{cmp::Ordering, convert::TryInto, fs};
 
@@ -143,6 +149,7 @@ impl ImageView {
         self.state = buf.to_vec();
     }
 
+    // #[cfg(feature = "parallel")]
     pub fn sort_buffer(&mut self, mode: SortMode) {
         if mode == SortMode::NONE {
             return;
@@ -153,7 +160,7 @@ impl ImageView {
             None => &self.img,
         };
 
-        let mut chunks: Vec<_> = img.as_bytes().chunks(3).collect();
+        let mut chunks: Vec<_> = img.as_bytes().par_chunks(3).collect();
 
         let hsva_sorter = |a: Hsv, b: Hsv| -> Ordering {
             match mode {
@@ -164,9 +171,9 @@ impl ImageView {
             }
         };
 
-        chunks.sort_unstable_by(|a, b| hsva_sorter(rgb2hsv!(a), rgb2hsv!(b)));
+        chunks.par_sort_unstable_by(|a, b| hsva_sorter(rgb2hsv!(a), rgb2hsv!(b)));
 
-        let flat_vec: Vec<u8> = chunks.into_iter().flatten().copied().collect();
+        let flat_vec: Vec<u8> = chunks.into_par_iter().flatten().copied().collect();
 
         let image_buffer: ImageBuffer<Rgb<u8>, _> =
             image::ImageBuffer::from_vec(img.width(), img.height(), flat_vec)
@@ -193,6 +200,7 @@ impl ImageView {
         and call reset when it is
     */
 
+    // #[cfg(feature = "parallel")]
     pub fn pixelate(&mut self, factor: f32) {
         self.pixel_palette.clear();
 
@@ -260,6 +268,7 @@ impl ImageView {
         self.state = buf;
     }
 
+    // #[cfg(feature = "parallel")]
     pub fn extract_colors(&self, min_dist: f32) -> String {
         let color_diff = |a: &[u8; 3], b: &[u8; 3]| -> f32 {
             let (a_lab, b_lab): (Lab, Lab) = (
@@ -272,7 +281,7 @@ impl ImageView {
 
         // O(n^2) algorithm.. oopsies
 
-        let mut colors: Vec<[u8; 3]> = Vec::new();
+        let mut colors = vec![];
 
         /*
             add a macro or something
@@ -282,7 +291,7 @@ impl ImageView {
             self.pixel_palette.iter().for_each(|p| {
                 let rgb: [u8; 3] = [p[0], p[1], p[2]];
                 if !colors
-                    .iter()
+                    .par_iter()
                     .any(|other| color_diff(&rgb, other) < min_dist)
                 {
                     colors.push(rgb);
@@ -292,7 +301,7 @@ impl ImageView {
             self.img.pixels().for_each(|p| {
                 let rgb: [u8; 3] = [p.2[0], p.2[1], p.2[2]];
                 if !colors
-                    .iter()
+                    .par_iter()
                     .any(|other| color_diff(&rgb, other) < min_dist)
                 {
                     colors.push(rgb);
@@ -303,7 +312,7 @@ impl ImageView {
         /* serializing */
 
         let hex_vec: Vec<String> = colors
-            .iter()
+            .par_iter()
             .map(|rgb| format!("#{:x}{:x}{:x}", rgb[0], rgb[1], rgb[2]))
             .collect();
 
@@ -311,6 +320,163 @@ impl ImageView {
     }
 }
 // }
+
+#[wasm_bindgen]
+pub fn sort_buffer(buf: &[u8], mode: SortMode) -> Option<Vec<u8>> {
+    if mode == SortMode::NONE {
+        return None;
+    }
+
+    // let img = match &self.pixel_img {
+    // Some(pixel_img) => pixel_img,
+    // None => &self.img,
+    // };
+    let img = image::load_from_memory(buf).expect("Couldn't load image");
+
+    let mut chunks: Vec<_> = img.as_bytes().par_chunks(3).collect();
+
+    let hsva_sorter = |a: Hsv, b: Hsv| -> Ordering {
+        match mode {
+            SortMode::HUE => partial_cmp!(hue_deg!(a), hue_deg!(b)),
+            SortMode::SATURATION => partial_cmp!(a.saturation, b.saturation),
+            SortMode::BRIGHTNESS => partial_cmp!(a.value, b.value),
+            SortMode::NONE => Ordering::Equal, // should never happen, handled in TS
+        }
+    };
+
+    chunks.par_sort_unstable_by(|a, b| hsva_sorter(rgb2hsv!(a), rgb2hsv!(b)));
+
+    let flat_vec: Vec<u8> = chunks.into_par_iter().flatten().copied().collect();
+
+    let image_buffer: ImageBuffer<Rgb<u8>, _> =
+        image::ImageBuffer::from_vec(img.width(), img.height(), flat_vec)
+            .expect("Output buffer was not created successfully");
+
+    let img = DynamicImage::ImageRgb8(image_buffer);
+
+    let mut buf = Vec::<u8>::new();
+
+    // if self.format == ImageFormat::Png {
+    // img.write_to(&mut buf, ImageOutputFormat::Png).unwrap();
+    // } else {
+    img.write_to(&mut buf, ImageOutputFormat::Jpeg(200))
+        .unwrap();
+    // }
+
+    Some(buf)
+}
+
+/*
+    TS side should validate that it's not a 0 factor
+    and call reset when it is
+*/
+
+// #[cfg(feature = "parallel")]
+#[wasm_bindgen]
+pub fn pixelate(buf: &[u8], factor: f32) -> Option<Vec<u8>> {
+    if factor == 1. {
+        return None;
+    }
+    let img = image::load_from_memory(buf).expect("Couldn't load image");
+
+    let mut image_buffer: ImageBuffer<Rgb<u8>, _> =
+        image::ImageBuffer::new(img.width(), img.height());
+
+    let (x_factor, y_factor): (u32, u32) = (
+        (factor * img.width() as f32).floor() as u32,
+        (factor * img.height() as f32).floor() as u32,
+    );
+
+    for x in (0..img.width()).step_by(x_factor as usize) {
+        for y in (0..img.height()).step_by(y_factor as usize) {
+            let (mut ar, mut ag, mut ab): (u32, u32, u32) = (0, 0, 0);
+            let (max_x, max_y) = (
+                (x + x_factor).min(img.width()),
+                (y + y_factor).min(img.height()),
+            );
+
+            for x_inner in x..max_x {
+                for y_inner in y..max_y {
+                    let pixel = img.get_pixel(x_inner, y_inner);
+                    ar += pixel.0[0] as u32;
+                    ag += pixel.0[1] as u32;
+                    ab += pixel.0[2] as u32;
+                }
+            }
+
+            ar /= x_factor * y_factor;
+            ag /= x_factor * y_factor;
+            ab /= x_factor * y_factor;
+
+            let (ar, ag, ab): (u8, u8, u8) = (
+                ar.try_into()
+                    .expect("Overflow error while calculating averages!"),
+                ag.try_into()
+                    .expect("Overflow error while calculating averages!"),
+                ab.try_into()
+                    .expect("Overflow error while calculating averages!"),
+            );
+
+            for x_inner in x..max_x {
+                for y_inner in y..max_y {
+                    image_buffer.put_pixel(x_inner, y_inner, Rgb { 0: [ar, ag, ab] });
+                }
+            }
+        }
+    }
+
+    let img = DynamicImage::ImageRgb8(image_buffer);
+
+    let mut buf = Vec::<u8>::new();
+
+    img.write_to(&mut buf, ImageOutputFormat::Jpeg(255))
+        .unwrap();
+
+    // buf
+    Some(buf)
+}
+
+// #[cfg(feature = "parallel")]
+#[wasm_bindgen]
+pub fn extract_colors(buf: &[u8], min_dist: f32) -> String {
+    let color_diff = |a: &[u8; 3], b: &[u8; 3]| -> f32 {
+        let (a_lab, b_lab): (Lab, Lab) = (
+            Srgb::new(a[0] as f32 / 255., a[1] as f32 / 255., a[2] as f32 / 255.).into_color(),
+            Srgb::new(b[0] as f32 / 255., b[1] as f32 / 255., b[2] as f32 / 255.).into_color(),
+        );
+
+        a_lab.get_color_difference(&b_lab)
+    };
+
+    // O(n^2) algorithm.. oopsies
+
+    let img = image::load_from_memory(buf).expect("Couldn't load image");
+
+    let mut colors = vec![];
+
+    /*
+        add a macro or something
+    */
+
+    img.pixels().for_each(|p| {
+        let rgb: [u8; 3] = [p.2[0], p.2[1], p.2[2]];
+        if !colors
+            .par_iter()
+            .any(|other| color_diff(&rgb, other) < min_dist)
+        {
+            colors.push(rgb);
+        }
+    });
+
+    /* serializing */
+
+    let hex_vec: Vec<String> = colors
+        .par_iter()
+        .map(|rgb| format!("#{:x}{:x}{:x}", rgb[0], rgb[1], rgb[2]))
+        .collect();
+
+    serde_json::to_string(&hex_vec).unwrap()
+}
 
 #[test]
 pub fn extraction() {
@@ -325,7 +491,9 @@ pub fn extraction() {
 pub fn pixelation() {
     let src = fs::read("5.jpg").unwrap();
     let mut view = ImageView::new(src.as_bytes());
+    let t = std::time::Instant::now();
     view.pixelate(0.2);
+    let duration = t.elapsed().as_secs_f64();
 
     fs::write("pixel.jpg", view.get()).unwrap();
 }
@@ -334,7 +502,9 @@ pub fn pixelation() {
 pub fn sorting() {
     let src = fs::read("5df.jpg").unwrap();
     let mut view = ImageView::new(src.as_bytes());
+    let t = std::time::Instant::now();
     view.sort_buffer(SortMode::HUE);
+    let duration = t.elapsed().as_secs_f64();
 
     fs::write("sort.jpg", view.get()).unwrap();
 }

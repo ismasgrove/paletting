@@ -1,6 +1,5 @@
 <script setup lang='ts'>
 import { ref, Ref, onMounted, onUpdated, reactive } from 'vue'
-import 'vue-advanced-cropper/dist/style.css'
 import useStore from '../store/useStore'
 
 const store = useStore()
@@ -93,15 +92,16 @@ const change = (props: any) => {
 </script>
 
 <template>
-    <canvas
-        @mousedown.prevent="handleMouseDown"
-        @mouseup.prevent="handleMouseUp"
-        @mousemove.prevent="handleMouseMove"
-        @mouseout.prevent="handleMouseOut"
-        ref="canvas"
-        class="canvas"
-        :src="store.getSrc"
-    />
+    <!-- <canvas -->
+    <!-- @mousedown.prevent="handleMouseDown" -->
+    <!-- @mouseup.prevent="handleMouseUp" -->
+    <!-- @mousemove.prevent="handleMouseMove" -->
+    <!-- @mouseout.prevent="handleMouseOut" -->
+    <!-- ref="canvas" -->
+    <!-- class="canvas" -->
+    <!-- :src="store.getSrc" -->
+    <!-- /> -->
+    <img :src="store.getSrc" />
 </template>
 
 <style scoped lang='scss'>
