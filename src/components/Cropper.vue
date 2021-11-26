@@ -25,6 +25,7 @@ onMounted(() => {
 
 onUpdated(() => {
     image.onload = () => {
+        context.value.clearRect(0, 0, canvas.value.width, canvas.value.height)
         context.value.drawImage(image, 0, 0)
     }
     image.src = store.getSrc
@@ -47,8 +48,9 @@ const endDrawing = (e: MouseEvent) => {
     const [x, y] = transform(e.clientX, e.clientY)
     endX = x
     endY = y
+
     store.setSubImage(startX, startY, endX, endY)
-    console.log(store.getSubImg)
+    console.log(startX, startY, endX - startX, endY - startY)
 }
 
 const handleMouseDown = (e: MouseEvent) => {
@@ -92,23 +94,24 @@ const change = (props: any) => {
 </script>
 
 <template>
-    <!-- <canvas -->
-    <!-- @mousedown.prevent="handleMouseDown" -->
-    <!-- @mouseup.prevent="handleMouseUp" -->
-    <!-- @mousemove.prevent="handleMouseMove" -->
-    <!-- @mouseout.prevent="handleMouseOut" -->
-    <!-- ref="canvas" -->
-    <!-- class="canvas" -->
-    <!-- :src="store.getSrc" -->
-    <!-- /> -->
-    <img :src="store.getSrc" />
+    <canvas
+        @mousedown.prevent="handleMouseDown"
+        @mouseup.prevent="handleMouseUp"
+        @mousemove.prevent="handleMouseMove"
+        @mouseout.prevent="handleMouseOut"
+        ref="canvas"
+        class="canvas"
+        :src="store.getSrc"
+    />
+    <!-- <img :src="store.getSrc" /> -->
 </template>
 
 <style scoped lang='scss'>
 .canvas {
     justify-self: center;
+    // background-color: white;
     height: 80%;
-    // width: 60%;
+    max-width: 80%;
     // border: 1px solid black;
     object-fit: contain;
 }

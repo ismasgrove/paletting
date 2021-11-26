@@ -2,6 +2,7 @@
 import Sidebar from './components/Sidebar.vue'
 import Editor from './components/Editor.vue'
 import MainContainer from './components/MainContainer.vue'
+import Preview from './components/Preview.vue'
 
 </script>
 
@@ -9,6 +10,7 @@ import MainContainer from './components/MainContainer.vue'
   <MainContainer>
     <Editor />
   </MainContainer>
+  <Preview />
 </template>
 
 <style lang='scss'>
@@ -20,13 +22,15 @@ html {
   font-size: 1rem;
 }
 #app {
-  /* font-family: Avenir, Helvetica, Arial, sans-serif; */
   font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
   background-color: white;
-  display: flex;
+  display: grid;
+  grid-template-rows: 100%;
+  grid-template-columns: 80% 20%;
+  // flex-direction: row;
   justify-content: center;
   align-items: center;
   height: 100vh;

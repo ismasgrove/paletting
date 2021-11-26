@@ -1,19 +1,27 @@
 <script setup lang="ts">
 import useStore from '../store/useStore'
-import { SortMode } from '../../wasm-colordump/pkg/wasm_colordump'
-import { ref } from 'vue'
+import { SortMode } from '../../wasm-paletting/pkg/wasm_paletting'
+import { onMounted, ref, Ref } from 'vue'
 
 const store = useStore()
-const pix = ref()
 
-const pixelate = (e: Event) => {
-    const mode = parseFloat((e.target as HTMLInputElement).value)
-    store.pixelate(mode)
+const pixelationOption: Ref<any> = ref()
+const sortOption: Ref<any> = ref()
+const toleranceOption: Ref<any> = ref()
+
+onMounted(() => {
+    pixelationOption.value = '0'
+    sortOption.value = 'default'
+    toleranceOption.value = store.tolerance
+})
+
+const pixelate = async (e: Event) => {
+    const factor = parseFloat((e.target as HTMLInputElement).value)
+    await store.pixelate(factor)
     store.render()
 }
 
-const sortBuffer = (e: Event) => {
-    pix.value.value = 0
+const sortBuffer = async (e: Event) => {
     const mode = ((): SortMode => {
         switch ((e.target as HTMLInputElement).value) {
             case 'hue':
@@ -27,8 +35,10 @@ const sortBuffer = (e: Event) => {
         }
     })
 
-    store.sortBuffer(mode())
-    store.render()
+    await store.sortBuffer(mode())
+    await store.render()
+
+    pixelationOption.value = 0
 }
 
 const changeTolerance = (e: Event) => {
@@ -36,18 +46,21 @@ const changeTolerance = (e: Event) => {
     store.setTolerance(dE)
 }
 
-const reset = (e: Event) => {
-    store.reset()
-    store.render()
+const reset = async (e: Event) => {
+    await store.reset()
+    await store.render()
+
+    pixelationOption.value = 0
+    sortOption.value = "default"
 }
 
-const extract = (e: Event) => {
-    const json = store.extractColors()
-    console.log(json)
+const extract = async (e: Event) => {
+    await store.extractColors()
+    console.log(store.palette)
 }
 
-const extractFromSubImage = (e: Event) => {
-
+const extractFromSubImage = async (e: Event) => {
+    await store.extractFromRegion()
 }
 
 const remove = (e: Event) => {
@@ -60,16 +73,15 @@ const remove = (e: Event) => {
     <div class="options">
         <label class="pixelate-label" for="pixelate">pixelate</label>
         <input
-            ref="pix"
+            v-model="pixelationOption"
             type="range"
             min="0"
             max="0.25"
-            value="0"
-            step="0.05"
+            step="0.01"
             name="pixelate"
-            @change="pixelate"
+            @input="pixelate"
         />
-        <select @change="sortBuffer">
+        <select v-model="sortOption" @change="sortBuffer">
             <option value="default" selected>default</option>
             <option value="hue">hue</option>
             <option value="saturation">saturation</option>
@@ -77,11 +89,11 @@ const remove = (e: Event) => {
         </select>
         <button @click="reset">reset</button>
         <!-- Add distance as options -->
-        <select @change="changeTolerance">
-            <option value="23" selected>only very different colors</option>
-            <option value="10">close enough</option>
-            <option value="2.3">distinguisable</option>
-            <option value="0">EVERY SINGLE ONE (no duplicates)</option>
+        <select v-model="toleranceOption" @change="changeTolerance">
+            <option value="23" selected>High difference</option>
+            <option value="10">Medium difference</option>
+            <option value="2.3">Low difference</option>
+            <!-- <option value="0">EVERY SINGLE ONE (no duplicates)</option> -->
         </select>
         <button @click="extract">extract</button>
         <button @click="extractFromSubImage">extract from region</button>

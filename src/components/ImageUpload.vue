@@ -72,6 +72,7 @@ $transition: 0.3s ease all;
     height: 50%;
     transition: $transition;
 
+    color: white;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -89,13 +90,14 @@ $transition: 0.3s ease all;
         // @extend button;
         display: flex;
         background-color: whitesmoke;
+        color: black;
         align-items: center;
         justify-content: center;
         width: auto;
         height: 2rem;
         padding: 1ch;
         cursor: pointer;
-        border: 2px solid black;
+        border: 2px solid red;
         transition: $transition;
     }
 }

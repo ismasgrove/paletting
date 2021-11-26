@@ -1,11 +1,13 @@
 {
     "compilerOptions": {
+        "types": ["vite/client"],
         "target": "esnext",
         "module": "esnext",
         "strict": true,
         "baseUrl": "./src",
-        "jsx": "preserve",
+        // "jsx": "preserve",
         "lib": ["ESNext", "WebWorker"],
-        "moduleResolution": "node"
+        "moduleResolution": "node",
+        "allowSyntheticDefaultImports": true
         }
 }

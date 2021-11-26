@@ -18,7 +18,7 @@ const store = useStore()
         <!-- <img :src="store.getSrc" /> -->
         <Options id="options" />
     </div>
-    <ImageUpload v-else />
+    <ImageUpload id="upload" v-else />
 </template>
 
 <style scoped lang='scss'>
@@ -42,5 +42,9 @@ img {
 #options {
     grid-column: 1;
     grid-row: 2;
+}
+#upload {
+    justify-self: center;
+    align-self: center;
 }
 </style>
