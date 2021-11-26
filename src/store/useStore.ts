@@ -1,14 +1,15 @@
-import { RemoteObject, wrap } from 'comlink'
 import { defineStore } from 'pinia'
+
+import { RemoteObject, wrap } from 'comlink'
 import { SortMode } from '../../wasm-paletting/pkg/wasm_paletting'
-import PWorker from '../worker/paletting.worker?worker'
 import { WasmWorker } from '../worker/paletting.worker'
+import PWorker from '../worker/paletting.worker?worker'
 
 type SubImage = {
-    x1: number,
-    y1: number,
-    x2: number,
-    y2: number
+    x: number,
+    y: number,
+    width: number,
+    height: number
 }
 
 const workerApi = wrap<typeof WasmWorker>(new PWorker);
@@ -62,16 +63,16 @@ const useStore = defineStore('store', {
         setTolerance(dE: number) {
             this.tolerance = dE
         },
-        setSubImage(x1: number, y1: number, x2: number, y2: number) {
-            this.subImage = { x1, y1, x2, y2 }
+        setSubImage(x: number, y: number, width: number, height: number) {
+            this.subImage = { x, y, width, height }
         },
         async extractFromRegion() {
             const json = await instance.extractFromRegion(
                 this.tolerance,
-                this.subImage.x1,
-                this.subImage.y1,
-                this.subImage.x2 - this.subImage.x1,
-                this.subImage.y2 - this.subImage.y1,
+                this.subImage.x,
+                this.subImage.y,
+                this.subImage.width,
+                this.subImage.height,
             )
             this.palette = Object.values(JSON.parse(json))
         },

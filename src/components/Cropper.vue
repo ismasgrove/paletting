@@ -8,10 +8,7 @@ let context = ref()
 let image = reactive(new Image())
 let drawing = false
 let startX: number, startY: number
-let endX: number, endY: number
-let mouseX: number, mouseY: number
-let offsetX: number, offsetY: number
-let scaleX: number, scaleY: number
+
 
 onMounted(() => {
     image.onload = () => {
@@ -33,10 +30,10 @@ onUpdated(() => {
 
 const transform = (x: number, y: number): [number, number] => {
     const canvasBoundingRect = canvas.value.getBoundingClientRect()
-    offsetX = canvasBoundingRect.left
-    offsetY = canvasBoundingRect.top
-    scaleX = canvas.value.width / canvasBoundingRect.width
-    scaleY = canvas.value.height / canvasBoundingRect.height
+    const offsetX = canvasBoundingRect.left
+    const offsetY = canvasBoundingRect.top
+    const scaleX = canvas.value.width / canvasBoundingRect.width
+    const scaleY = canvas.value.height / canvasBoundingRect.height
     return [
         Math.round((x - offsetX) * scaleX),
         Math.round((y - offsetY) * scaleY)
@@ -45,18 +42,16 @@ const transform = (x: number, y: number): [number, number] => {
 
 const endDrawing = (e: MouseEvent) => {
     drawing = false
-    const [x, y] = transform(e.clientX, e.clientY)
-    endX = x
-    endY = y
+    const [endX, endY] = transform(e.clientX, e.clientY)
 
-    store.setSubImage(startX, startY, endX, endY)
-    console.log(startX, startY, endX - startX, endY - startY)
+    const deltaX = Math.max(startX, endX) - Math.min(startX, endX)
+    const deltaY = Math.max(startY, endY) - Math.min(startY, endY)
+
+    store.setSubImage(Math.min(startX, endX), Math.min(startY, endY), deltaX, deltaY)
 }
 
 const handleMouseDown = (e: MouseEvent) => {
-    const [x, y] = transform(e.clientX, e.clientY)
-    startX = x
-    startY = y
+    [startX, startY] = transform(e.clientX, e.clientY)
     drawing = true
 }
 
@@ -67,9 +62,7 @@ const handleMouseUp = (e: MouseEvent) => {
 const handleMouseMove = (e: MouseEvent) => {
     if (!drawing) return;
 
-    const [x, y] = transform(e.clientX, e.clientY)
-    mouseX = x
-    mouseY = y
+    const [mouseX, mouseY] = transform(e.clientX, e.clientY)
 
     context.value.clearRect(0, 0, canvas.value.width, canvas.value.height)
     context.value.drawImage(image, 0, 0)
@@ -84,13 +77,6 @@ const handleMouseOut = (e: MouseEvent) => {
     endDrawing(e)
 }
 
-const change = (props: any) => {
-    /*
-        TODO: send coordinates to WASM
-    */
-    // console.log(props.coordinates, props.canvas)
-}
-
 </script>
 
 <template>
@@ -103,7 +89,6 @@ const change = (props: any) => {
         class="canvas"
         :src="store.getSrc"
     />
-    <!-- <img :src="store.getSrc" /> -->
 </template>
 
 <style scoped lang='scss'>
