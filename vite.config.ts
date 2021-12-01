@@ -17,6 +17,9 @@ export default defineConfig({
       allow: ['..']
     }
   },
+  optimizeDeps: {
+    exclude: ['vue-router']
+  },
   plugins: [
     {
       name: "configure-response-headers",

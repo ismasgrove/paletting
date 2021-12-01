@@ -2,10 +2,12 @@
 import { ref, Ref } from 'vue'
 
 import useStore from '../store/useStore'
+import { useRouter } from 'vue-router'
 
 const imageFile = ref()
 const active = ref(false)
 const store = useStore()
+const router = useRouter()
 
 function uploadButton(e: Event) {
     if ((e.target as HTMLInputElement).files?.length === 0) {
@@ -33,6 +35,7 @@ const initializeStore = (imageFile: Ref<any>) => {
             await store.initialize(new Uint8Array(buf))
             await store.render()
             store.setLoaded(true)
+            router.push({ path: '/editor' })
         })
 }
 
@@ -44,7 +47,7 @@ const handleStuff = () => {
 
 <template>
     <div
-        :class="{ 'active': active }"
+        :class="{ active: active }"
         @dragenter.prevent="handleStuff"
         @dragleave.prevent="handleStuff"
         @drop.prevent="handleStuff"
@@ -54,16 +57,14 @@ const handleStuff = () => {
     >
         <span>Drag and drop</span>
         <span>or</span>
-        <!-- <form class="image-form" @submit.prevent> -->
         <input @change="uploadButton" id="img" type="file" accept="image/*" ref="file" />
         <label for="img">upload an image</label>
-        <!-- <input type="submit" value="use" /> -->
-        <!-- </form> -->
     </div>
 </template>
 
 <style scoped lang="scss">
 $transition: 0.3s ease all;
+$accent: #f38630;
 .active {
     background-color: antiquewhite;
 }
@@ -72,14 +73,15 @@ $transition: 0.3s ease all;
     height: 50%;
     transition: $transition;
 
-    color: white;
+    color: black;
     display: flex;
     flex-direction: column;
     justify-content: center;
     gap: 10px;
     align-items: center;
-    border: 1px solid crimson;
+    border: 1px solid $accent;
     border-radius: 10px;
+
     span {
         font-size: large;
     }
@@ -93,11 +95,12 @@ $transition: 0.3s ease all;
         color: black;
         align-items: center;
         justify-content: center;
-        width: auto;
         height: 2rem;
         padding: 1ch;
         cursor: pointer;
-        border: 2px solid red;
+        border: 2px solid $accent;
+        border-style: solid;
+        border-radius: 5px;
         transition: $transition;
     }
 }

@@ -32,7 +32,6 @@ onMounted(() => {
             let height = preview.value.offsetHeight
             let canvas = p.createCanvas(width + 20, height)
             canvas.parent("sketch")
-            // p.noLoop()
             p.noStroke()
         }
 
@@ -66,9 +65,5 @@ onMounted(() => {
 #sketch {
     width: 100%;
     height: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background-color: red;
 }
 </style>

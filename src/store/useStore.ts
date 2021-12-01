@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
 
 import { RemoteObject, wrap } from 'comlink'
-import { SortMode } from '../../wasm-paletting/pkg/wasm_paletting'
+import { SortMode } from "../../wasm-paletting/pkg/wasm_paletting"
 import { WasmWorker } from '../worker/paletting.worker'
 import PWorker from '../worker/paletting.worker?worker'
 
@@ -23,7 +23,7 @@ const useStore = defineStore('store', {
             state: {} as Uint8Array,
             loaded: false,
             src: "",
-            tolerance: 23,
+            tolerance: 0,
             subImage: {} as SubImage,
         }
     ),

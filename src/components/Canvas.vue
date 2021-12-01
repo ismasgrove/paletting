@@ -3,6 +3,8 @@ import { ref, Ref, onMounted, onUpdated, reactive } from 'vue'
 import useStore from '../store/useStore'
 
 const store = useStore()
+const resolution = window.devicePixelRatio *
+    Math.min(window.screen.width, window.screen.height)
 let canvas = ref()
 let context = ref()
 let image = reactive(new Image())
@@ -70,6 +72,10 @@ const handleMouseMove = (e: MouseEvent) => {
     const width = Math.round(mouseX - startX)
     const height = Math.round(mouseY - startY)
 
+    const line = 3 * Math.sqrt(canvas.value.width * canvas.value.width
+        + canvas.value.height * canvas.value.height) / resolution
+
+    context.value.lineWidth = line
     context.value.strokeRect(startX, startY, width, height)
 }
 const handleMouseOut = (e: MouseEvent) => {
@@ -93,11 +99,6 @@ const handleMouseOut = (e: MouseEvent) => {
 
 <style scoped lang='scss'>
 .canvas {
-    justify-self: center;
-    // background-color: white;
-    height: 80%;
-    max-width: 80%;
-    // border: 1px solid black;
     object-fit: contain;
 }
 </style>
