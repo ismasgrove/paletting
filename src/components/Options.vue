@@ -140,27 +140,33 @@ const remove = (e: Event) => {
         </div>
 
         <div class="buttons-div">
-            <span @click="extract">extract</span>
-            <span @click="extractFromSubImage">extract from region</span>
-            <span @click="reset">reset</span>
-            <span @click="remove">remove</span>
+            <label class="option-label">Extract</label>
+            <button @click="extract">Full</button>
+            <button @click="extractFromSubImage">Region</button>
         </div>
 
-        <button class="export-btn">export</button>
+        <div class="buttons-div crucial-buttons-div">
+            <button @click="reset">Reset</button>
+            <button @click="remove">Remove</button>
+            <button class="export-btn">Export</button>
+        </div>
     </div>
 </template>
 
 <style scoped lang="scss">
-$selected: hsl(39, 86%, 43%);
-$options-highlights: #f38630;
-$buttons-color: #69d2e7;
+$crucial-buttons-color: hsl(35, 89%, 57%);
+$crucial-buttons-hover-color: hsl(54, 82%, 65%);
+$options-highlights: hsl(26, 89%, 57%);
+$options-highlights-hover: hsl(26, 89%, 65%);
+$buttons-color: hsl(0, 0%, 89%);
+$buttons-hover-color: hsl(0, 0%, 95%);
 $radio-radius: 5px;
 $options-bar-color: hsl(0, 0%, 15%);
 $range-slider-thumb: hsl(305, 100%, 91%);
 .options-set {
     display: inline-flex;
     place-content: center;
-    gap: 1rem;
+    gap: 0.75rem;
     input[type="range"] {
         -webkit-appearance: none;
         width: 9rem;
@@ -201,8 +207,7 @@ $range-slider-thumb: hsl(305, 100%, 91%);
         color: black;
         width: 9.5ch;
         height: 3ch;
-        background-color: hsl(0, 0%, 89%);
-        // border: 1px solid red;
+        background-color: $buttons-color;
         border-radius: $radio-radius;
 
         input[type="radio"] {
@@ -221,33 +226,51 @@ $range-slider-thumb: hsl(305, 100%, 91%);
         input[type="radio"]:checked + .mode-selector {
             background-color: $options-highlights;
         }
+        input[type="radio"]:checked:hover + .mode-selector {
+            background-color: $options-highlights-hover;
+        }
+    }
+    .radio-options:hover {
+        background-color: $buttons-hover-color;
     }
 }
 button {
+    display: inline-block;
+    border: none;
+    border-radius: 5px;
+    width: 9.5ch;
+    height: 3.5ch;
+    background-color: $buttons-color;
+    color: black;
+    font-size: small;
     cursor: pointer;
+    text-align: center;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+}
+
+button:hover {
+    background-color: hsl(190, 72%, 72%);
+}
+button:focus {
+    outline: none;
 }
 .buttons-div {
     display: inline-flex;
     place-content: center;
     place-items: center;
     gap: 1rem;
-    span {
-        height: 3ch;
-        width: 9.5ch;
-        // border: 0.1em solid #f38630;
-        border-radius: 5px;
-        font-family: "Trebuchet MS";
-        // border-radius: 5px;
-        background-color: $buttons-color;
-        width: auto;
-        // height: 3ch;
-    }
+}
+.crucial-buttons-div > button {
+    background-color: $crucial-buttons-color;
+}
+.crucial-buttons-div > button:hover {
+    background-color: $crucial-buttons-hover-color;
 }
 .options {
     display: flex;
     place-items: center;
     justify-content: space-evenly;
-    // gap: 0.25rem;
     background-color: $options-bar-color;
     .option-label {
         display: inline-flex;

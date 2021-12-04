@@ -74,7 +74,12 @@ const useStore = defineStore('store', {
                 this.subImage.width,
                 this.subImage.height,
             )
-            this.palette = Object.values(JSON.parse(json))
+            const palette: string[] = Object.values(JSON.parse(json))
+            if (palette.length < 1) {
+                // TODO: Notify the user that their selection was invalid
+            } else {
+                this.palette = palette
+            }
         },
         async reset() {
             this.state = this.initial
