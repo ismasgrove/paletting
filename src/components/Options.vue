@@ -36,7 +36,6 @@ let pixelationSlider = reactive({
 const sliderStyle = computed(() => `linear-gradient(90deg, ${pixelationSlider.color} ${pixelationPercentage.value}%, #fff ${pixelationPercentage.value}%)`)
 
 onMounted(() => {
-    // pixelationPercentage.value = sliderMap.value
     pixelationSlider.sliderStyle = sliderStyle.value
     store.setTolerance(toleranceOptions.Medium)
     toleranceFactor.value = store.tolerance
@@ -162,7 +161,8 @@ $buttons-color: hsl(0, 0%, 89%);
 $buttons-hover-color: hsl(0, 0%, 95%);
 $radio-radius: 5px;
 $options-bar-color: hsl(0, 0%, 15%);
-$range-slider-thumb: hsl(305, 100%, 91%);
+// $range-slider-thumb: hsl(305, 100%, 91%);
+$range-slider-thumb: hsl(190, 72%, 72%);
 .options-set {
     display: inline-flex;
     place-content: center;

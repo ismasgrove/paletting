@@ -1,5 +1,5 @@
 <script setup lang='ts'>
-import { ref, Ref, onMounted, onUpdated, reactive } from 'vue'
+import { ref, onMounted, onUpdated, reactive } from 'vue'
 import useStore from '../store/useStore'
 
 const store = useStore()
