@@ -234,10 +234,10 @@ impl ImageView {
                     })
                 });
 
-                ar /= (max_x-x) * (max_y-y);
-                ag /= (max_x-x) * (max_y-y);
-                ab /= (max_x-x) * (max_y-y);
-                aa /= (max_x-x) * (max_y-y);
+                ar /= (max_x - x) * (max_y - y);
+                ag /= (max_x - x) * (max_y - y);
+                ab /= (max_x - x) * (max_y - y);
+                aa /= (max_x - x) * (max_y - y);
 
                 let (ar, ag, ab, aa): (u8, u8, u8, u8) = (
                     ar.try_into()
