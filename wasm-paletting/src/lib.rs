@@ -274,7 +274,6 @@ impl ImageView {
 
         img.write_to(&mut buf, ImageOutputFormat::Png).unwrap();
 
-        // buf
         self.pixel_img = Some(img);
         self.pixel_palette = pixel_palette;
         self.state = buf;
@@ -301,7 +300,6 @@ impl ImageView {
         a_lab.get_color_difference(&b_lab)
     }
 
-    // #[cfg(feature = "parallel")]
     pub fn extract_colors(&self, min_dist: f32) -> String {
         let mut colors = vec![];
 

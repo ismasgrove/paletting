@@ -1,0 +1,24 @@
+/*
+    This separate production config needs to exist thanks
+    to a bug in vue-loader in TypeScript which disallows
+    compilation with webpack's production flag.
+
+    The only thing different is that strict is disabled.
+*/
+
+{
+    "compilerOptions": {
+      "target": "esnext",
+      "module": "esnext",
+      "outDir": "./dist/",
+      "jsx": "preserve",
+      "importHelpers": true,
+      "moduleResolution": "node",
+      "skipLibCheck": true,
+      "esModuleInterop": true,
+      "allowSyntheticDefaultImports": true,
+      "sourceMap": true,
+      "baseUrl": ".",
+    },
+  "exclude": ["node_modules"]
+  }

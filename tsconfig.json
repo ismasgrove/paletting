@@ -1,13 +1,17 @@
 {
-    "compilerOptions": {
-        "types": ["vite/client"],
-        "target": "esnext",
-        "module": "esnext",
-        "strict": true,
-        "baseUrl": "./src",
-        // "jsx": "preserve",
-        "lib": ["ESNext", "WebWorker"],
-        "moduleResolution": "node",
-        "allowSyntheticDefaultImports": true
-        }
+  "compilerOptions": {
+    "target": "esnext",
+    "module": "esnext",
+    "outDir": "./dist/",
+    "strict": true,
+    "jsx": "preserve",
+    "importHelpers": true,
+    "moduleResolution": "node",
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "sourceMap": true,
+    "baseUrl": ".",
+  },
+"exclude": ["node_modules"]
 }
