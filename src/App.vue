@@ -1,29 +1,29 @@
-<script setup lang='ts'>
-import Header from './components/Header.vue'
+<script setup lang="ts">
+import Header from "./components/Header.vue";
+import Preview from "./components/Preview.vue";
+import Prompt from "./components/Prompt.vue";
 
-import Preview from './components/Preview.vue'
+import useStore from './store/useStore'
 
-import Options from './components/Options.vue'
-import Canvas from './components/Canvas.vue'
-import ImageUpload from './components/ImageUpload.vue'
-
-// import useStore from './store/useStore'
+const store = useStore()
 
 </script>
 
 <template>
   <Header class="header" />
   <div class="ridge" />
+  <Prompt class="prompt" v-if="store.prompt" />
   <router-view class="image-upload"></router-view>
-  <!-- <ImageUpload class="image-upload" v-if="!store.loaded" /> -->
   <router-view name="Canvas" class="canvas"></router-view>
   <router-view name="Options" class="options"></router-view>
-  <!-- <Canvas v-if="store.loaded" class="canvas" /> -->
-  <!-- <Options v-if="store.loaded" class="options" /> -->
+  <router-view name="Explore" class="explore"></router-view>
   <Preview class="preview" />
 </template>
 
-<style lang='scss'>
+<style lang="scss">
+@import url("https://fonts.googleapis.com/css2?family=Comfortaa:wght@500&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=PT+Sans&display=swap");
+
 $ridge-color: hsl(0, 0%, 15%);
 body,
 html {
@@ -31,6 +31,13 @@ html {
   margin: 0;
   padding: 0;
   font-size: 1rem;
+}
+.prompt {
+  justify-self: right;
+  align-self: flex-end;
+  grid-row: 2 / 3;
+  grid-column: 1;
+  z-index: 10;
 }
 .ridge {
   height: 100%;
@@ -61,6 +68,7 @@ html {
   display: flex;
   justify-items: start;
   width: 100%;
+  min-height: fit-content;
   grid-row: 1;
   grid-column: 1;
 }
