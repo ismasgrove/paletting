@@ -26,8 +26,8 @@ export default (req: VercelRequest, res: VercelResponse) => {
 
     if (req.method === "GET") {
         Palette.find()
-            .then(palettes => {
-                res.status(200).json(palettes)
+            .then(palette => {
+                res.status(200).json(palette)
             })
             .catch(error => res.status(500).json(error.message))
     } else if (req.method === "POST") {

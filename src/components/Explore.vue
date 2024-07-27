@@ -7,7 +7,7 @@ import { onMounted, ref, watch } from 'vue';
 let paletteCollection = ref<Palette[]>([]);
 
 onMounted(async () => {
-    const response: Array<Palette> = await ky.get('/api/palettes').json();
+    const response: Array<Palette> = await ky.get('/api/palette').json();
     paletteCollection.value = response;
 })
 

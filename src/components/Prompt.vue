@@ -11,7 +11,7 @@ const tag = ref("");
 const { download } = useDownload();
 
 const save = async () => {
-    const response = await ky.post("/api/palettes", {
+    const response = await ky.post("/api/palette", {
         json: {
             tag: tag.value,
             palette: store.getPalette,
